@@ -3,22 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ROBLOX - Classic 2008-2011 Experience & 3D BrickBattle Engine</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Classic Roblox 2008-2011 Experience</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Three.js CDN -->
+    <!-- Three.js 3D Engine Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Trebuchet+MS&family=Tahoma:wght@400;700&display=swap');
-
-        body {
-            font-family: 'Tahoma', 'Trebuchet MS', Verdana, sans-serif;
-            background-color: #002244;
-            color: #000;
-            user-select: none;
-            overflow-x: hidden;
-        }
-
         /* Classic 2008 Glossy Buttons */
         .retro-btn-green {
             background: linear-gradient(to bottom, #85e042 0%, #4ea310 100%);
@@ -60,6 +50,7 @@
             border-top-right-radius: 4px;
             border: 1px solid #002244;
             border-bottom: none;
+            cursor: pointer;
         }
         .retro-header-tab.active {
             background: linear-gradient(to bottom, #e1e1e1 0%, #cccccc 100%);
@@ -112,7 +103,7 @@
         .hotbar-slot {
             width: 54px;
             height: 54px;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             border: 2px solid #888;
             border-radius: 4px;
             cursor: pointer;
@@ -227,11 +218,11 @@
                 <canvas id="gameCanvas" class="w-full h-full block cursor-crosshair"></canvas>
 
                 <!-- UI OVERLAY: Top Left System / Chat Window -->
-                <div class="absolute top-3 left-3 w-64 sm:w-80 pointer-events-auto flex flex-col justify-end space-y-1">
+                <div class="absolute top-3 left-3 w-64 sm:w-80 pointer-events-auto flex flex-col justify-end space-y-1 z-20">
                     <div id="chatLog" class="h-32 bg-black/60 backdrop-blur-xs p-2 rounded border border-yellow-500/40 overflow-y-auto text-xs text-yellow-300 font-mono space-y-1 shadow">
                         <div><span class="text-sky-300 font-bold">[System]:</span> Welcome to ROBLOX 2008 Classic!</div>
                         <div><span class="text-sky-300 font-bold">[System]:</span> WASD to move, Space to Jump, Right-click Drag to rotate camera.</div>
-                        <div><span class="text-sky-300 font-bold">[System]:</span> Left-click aims & fires weapons directly at the cursor point!</div>
+                        <div><span class="text-sky-300 font-bold">[System]:</span> Left-click aims & fires weapons directly at target point!</div>
                     </div>
                     <form onsubmit="handleChatSubmit(event)" class="flex space-x-1">
                         <input id="chatInput" type="text" placeholder="Press '/' or click to chat..." 
@@ -241,7 +232,7 @@
                 </div>
 
                 <!-- UI OVERLAY: Top Right Leaderboard / Leaderstats -->
-                <div class="absolute top-3 right-3 w-44 bg-slate-900/80 backdrop-blur border-2 border-slate-600 rounded p-2 text-white font-sans shadow-lg text-xs pointer-events-auto">
+                <div class="absolute top-3 right-3 w-44 bg-slate-900/80 backdrop-blur border-2 border-slate-600 rounded p-2 text-white font-sans shadow-lg text-xs pointer-events-auto z-20">
                     <div class="font-bold border-b border-slate-600 pb-1 mb-1 text-center text-yellow-400 uppercase tracking-wider">
                         Leaderstats
                     </div>
@@ -255,7 +246,7 @@
                 </div>
 
                 <!-- UI OVERLAY: Bottom Center Hotbar Weapons (1-5) -->
-                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 bg-slate-900/85 p-2 rounded-xl border-2 border-slate-600 shadow-2xl pointer-events-auto">
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 bg-slate-900/85 p-2 rounded-xl border-2 border-slate-600 shadow-2xl pointer-events-auto z-20">
                     <div onclick="selectTool(1)" id="slot-1" class="hotbar-slot active flex flex-col items-center justify-between p-1">
                         <span class="text-[10px] text-yellow-400 font-bold self-start">1</span>
                         <span class="text-2xl">🗡️</span>
@@ -283,8 +274,21 @@
                     </div>
                 </div>
 
+                <!-- UI OVERLAY: Mobile Controls -->
+                <div id="mobile-controls" class="hidden md:hidden absolute bottom-4 left-4 z-30 flex items-center gap-4 bg-black/40 p-2 rounded border border-gray-700/50 pointer-events-auto">
+                    <!-- Touch Joystick Area -->
+                    <div id="touch-joystick" class="relative w-24 h-24 bg-gray-900/80 border-2 border-gray-500 rounded-full flex items-center justify-center touch-none select-none">
+                        <div id="joystick-knob" class="w-10 h-10 bg-yellow-500/80 rounded-full border border-white shadow-lg pointer-events-none transition-transform duration-75"></div>
+                    </div>
+                    
+                    <!-- Mobile Action Buttons -->
+                    <button id="btn-touch-jump" class="retro-btn-blue w-16 h-12 text-xs font-bold text-white rounded active:scale-95 flex items-center justify-center">
+                        JUMP
+                    </button>
+                </div>
+
                 <!-- 3D Speech Bubbles Container Dynamic Overlay -->
-                <div id="speechBubblesContainer" class="absolute inset-0 pointer-events-none"></div>
+                <div id="speechBubblesContainer" class="absolute inset-0 pointer-events-none z-10"></div>
             </div>
         </section>
 
@@ -337,17 +341,17 @@
 
                     <div class="bg-white border-2 border-slate-400 rounded p-3 flex flex-col justify-between hover:shadow-md transition">
                         <div>
-                            <div class="h-36 bg-sky-700 rounded mb-2 flex items-center justify-center border border-slate-300 relative overflow-hidden">
-                                <span class="text-5xl">☁️</span>
+                            <div class="h-36 bg-sky-800 rounded mb-2 flex items-center justify-center border border-slate-300 relative overflow-hidden">
+                                <span class="text-5xl">⚔️</span>
                                 <span class="absolute bottom-1 right-2 text-[10px] bg-black/70 text-yellow-300 px-1.5 rounded">Created: 2009</span>
                             </div>
                             <h3 class="font-bold text-base text-blue-900">Sword Heights</h3>
                             <p class="text-xs text-slate-600 mt-1">
-                                High-altitude sky arena duels! Precision sword play on floating glass platforms surrounded by clouds.
+                                Duel atop floating sky platforms in the clouds! Careful not to fall into the void!
                             </p>
                         </div>
                         <div class="mt-4 pt-2 border-t border-slate-200 flex items-center justify-between">
-                            <span class="text-xs text-green-700 font-bold">● 840 Online</span>
+                            <span class="text-xs text-green-700 font-bold">● 890 Online</span>
                             <button onclick="launchPlace('swordheights')" class="retro-btn-green px-4 py-1.5 rounded text-xs uppercase tracking-wider">
                                 ▶ Play
                             </button>
@@ -390,7 +394,7 @@
                             </div>
 
                             <div class="grid grid-cols-6 gap-1.5" id="colorPaletteGrid">
-                                <!-- Colors rendered in JS -->
+                                <!-- Colors rendered dynamically via JS -->
                             </div>
                         </div>
 
@@ -405,25 +409,12 @@
                                 <button onclick="setAvatarFace('epic')" class="border p-2 rounded hover:bg-slate-100 flex flex-col items-center text-xs font-bold">
                                     <span class="text-xl">😎</span> Epic Face
                                 </button>
-                                <button onclick="setAvatarFace('oof')" class="border p-2 rounded hover:bg-slate-100 flex flex-col items-center text-xs font-bold">
-                                    <span class="text-xl">😮</span> OOF Face
-                                </button>
                                 <button onclick="setAvatarFace('chill')" class="border p-2 rounded hover:bg-slate-100 flex flex-col items-center text-xs font-bold">
                                     <span class="text-xl">😏</span> Man Face
                                 </button>
-                            </div>
-                        </div>
-
-                        <div class="bg-white border-2 border-slate-400 rounded p-3">
-                            <h3 class="font-bold text-xs uppercase text-slate-700 border-b pb-1 mb-2">
-                                🎩 Hats & Headwear
-                            </h3>
-                            <div class="grid grid-cols-3 gap-2 text-xs font-bold">
-                                <button onclick="setAvatarHat('none')" class="border p-2 rounded hover:bg-slate-100 text-center">None</button>
-                                <button onclick="setAvatarHat('tophat')" class="border p-2 rounded hover:bg-slate-100 text-center">🎩 Classic Top Hat</button>
-                                <button onclick="setAvatarHat('domino')" class="border p-2 rounded hover:bg-slate-100 text-center">👑 Domino Crown</button>
-                                <button onclick="setAvatarHat('visor')" class="border p-2 rounded hover:bg-slate-100 text-center">🥽 Red Visor</button>
-                                <button onclick="setAvatarHat('bighead')" class="border p-2 rounded hover:bg-slate-100 text-center">🗣️ Big Head Mode</button>
+                                <button onclick="setAvatarFace('oof')" class="border p-2 rounded hover:bg-slate-100 flex flex-col items-center text-xs font-bold">
+                                    <span class="text-xl">😮</span> OOF Shock
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -434,46 +425,85 @@
         <!-- VIEW TAB 4: CATALOG SHOP -->
         <section id="view-catalog" class="hidden space-y-4">
             <div class="retro-panel p-4 rounded bg-[#ECECEC]">
-                <h2 class="text-xl font-black text-slate-800 border-b-2 border-slate-400 pb-2 flex justify-between items-center">
-                    <span>🛒 Catalog & Retro Gear Shop</span>
-                    <span class="text-xs text-slate-600 font-normal">Buy classic items with Robux or Tickets!</span>
+                <h2 class="text-xl font-black text-slate-800 border-b-2 border-slate-400 pb-2">
+                    🛒 ROBLOX Catalog Store
                 </h2>
-
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4" id="catalogGrid">
-                    <!-- Items rendered dynamically in JS -->
+                    <!-- Catalog items rendered in JS -->
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- FOOTER -->
-    <footer class="w-full bg-[#001830] border-t-2 border-[#001122] py-3 text-center text-xs text-slate-400">
-        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
-            <div>
-                © 2008-2011 ROBLOX Corporation Classic Replica Engine. Self-Contained WebGL Simulator.
-            </div>
-            <div class="space-x-3 text-slate-300">
-                <a href="#" onclick="alert('ROBLOX Classic Rules:\n1. Be polite in chat\n2. Have fun building!\n3. Respect other players.'); return false;" class="hover:underline">Terms & Safety</a>
-                <span>•</span>
-                <a href="#" onclick="alert('Synthesized Audio Engine running with Web Audio API. 100% reliable sound effects!'); return false;" class="hover:underline">Audio Info</a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- JAVASCRIPT LOGIC BLOCK -->
+    <!-- SCRIPT ENGINE -->
     <script>
         let audioCtx = null;
 
         function initAudioContext() {
             if (!audioCtx) {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
         }
+
+        const ROBLOX_PALETTE = [
+            { name: 'Bright Yellow', hex: '#F5CD2F' },
+            { name: 'Bright Blue', hex: '#0D69AC' },
+            { name: 'Medium Green', hex: '#A1C48C' },
+            { name: 'Bright Red', hex: '#C4281C' },
+            { name: 'Bright Green', hex: '#4B9D21' },
+            { name: 'Dark Orange', hex: '#D7A54D' },
+            { name: 'White', hex: '#F2F3F3' },
+            { name: 'Black', hex: '#1B2A35' },
+            { name: 'Medium Stone Grey', hex: '#A3A2A5' },
+            { name: 'Bright Violet', hex: '#6B327C' },
+            { name: 'Pastel Blue', hex: '#AFDD21' },
+            { name: 'Cool Yellow', hex: '#FDF6C7' }
+        ];
+
+        let userState = {
+            username: 'Guest 1337',
+            robux: 150,
+            tix: 1240,
+            kos: 0,
+            wos: 0,
+            tixEarned: 0,
+            selectedTool: 1,
+            activeMap: 'crossroads',
+            editingPart: 'head',
+            avatar: {
+                colors: {
+                    head: '#F5CD2F',
+                    torso: '#0D69AC',
+                    leftArm: '#F5CD2F',
+                    rightArm: '#F5CD2F',
+                    leftLeg: '#A1C48C',
+                    rightLeg: '#A1C48C'
+                },
+                face: 'smile',
+                hat: 'none'
+            }
+        };
+
+        let scene, camera, renderer;
+        let avatarPreviewScene, avatarPreviewCamera, avatarPreviewRenderer, previewAvatarGroup;
+        let playerGroup, playerHeadMesh, playerTorsoMesh, swordMesh;
+        let playerPos = new THREE.Vector3(0, 5, 0);
+        let playerVelocity = new THREE.Vector3(0, 0, 0);
+        let isGrounded = false;
+        let activeProjectiles = [];
+        let destructibleBricks = [];
+        let activeBomb = null;
+        let activeSpeechBubbles = [];
+        let lastTime = performance.now();
+
+        // 3D Mouse Targeting & AI NPCs
+        let raycaster = new THREE.Raycaster();
+        let mousePos = new THREE.Vector2();
+        let npcBots = [];
+
+        const keys = {};
+        let cameraYaw = 0, cameraPitch = 0.3;
 
         function playOofSound() {
             initAudioContext();
@@ -733,65 +763,6 @@
             return new THREE.CanvasTexture(canvas);
         }
 
-        const ROBLOX_PALETTE = [
-            { name: 'Bright Yellow', hex: '#F5CD2F' },
-            { name: 'Bright Blue', hex: '#0D69AC' },
-            { name: 'Medium Green', hex: '#A1C48C' },
-            { name: 'Bright Red', hex: '#C4281C' },
-            { name: 'Bright Green', hex: '#4B9D21' },
-            { name: 'Dark Orange', hex: '#D7A54D' },
-            { name: 'White', hex: '#F2F3F3' },
-            { name: 'Black', hex: '#1B2A35' },
-            { name: 'Medium Stone Grey', hex: '#A3A2A5' },
-            { name: 'Bright Violet', hex: '#6B327C' },
-            { name: 'Pastel Blue', hex: '#AFDD21' },
-            { name: 'Cool Yellow', hex: '#FDF6C7' }
-        ];
-
-        let userState = {
-            username: 'Guest 1337',
-            robux: 150,
-            tix: 1240,
-            kos: 0,
-            wos: 0,
-            tixEarned: 0,
-            selectedTool: 1,
-            activeMap: 'crossroads',
-            editingPart: 'head',
-            avatar: {
-                colors: {
-                    head: '#F5CD2F',
-                    torso: '#0D69AC',
-                    leftArm: '#F5CD2F',
-                    rightArm: '#F5CD2F',
-                    leftLeg: '#A1C48C',
-                    rightLeg: '#A1C48C'
-                },
-                face: 'smile',
-                hat: 'none'
-            }
-        };
-
-        let scene, camera, renderer;
-        let avatarPreviewScene, avatarPreviewCamera, avatarPreviewRenderer, previewAvatarGroup;
-        let playerGroup, playerHeadMesh, playerTorsoMesh, swordMesh;
-        let playerPos = new THREE.Vector3(0, 5, 0);
-        let playerVelocity = new THREE.Vector3(0, 0, 0);
-        let isGrounded = false;
-        let activeProjectiles = [];
-        let destructibleBricks = [];
-        let activeBomb = null;
-        let activeSpeechBubbles = [];
-        let lastTime = performance.now();
-
-        // 3D Mouse Targeting & AI NPCs
-        let raycaster = new THREE.Raycaster();
-        let mousePos = new THREE.Vector2();
-        let npcBots = [];
-
-        const keys = {};
-        let cameraYaw = 0, cameraPitch = 0.3;
-
         function createSwordMesh() {
             const group = new THREE.Group();
             const bladeGeo = new THREE.BoxGeometry(0.2, 2.5, 0.05);
@@ -928,6 +899,108 @@
             buildPlayer3DCharacter();
         }
 
+        function createBrickBlock(x, y, z, w, h, d, colorHex) {
+            const geo = new THREE.BoxGeometry(w, h, d);
+            const colorStr = '#' + new THREE.Color(colorHex).getHexString();
+            const studTexture = createStudTexture(colorStr);
+            studTexture.repeat.set(Math.max(1, Math.floor(w / 2)), Math.max(1, Math.floor(d / 2)));
+
+            const mat = new THREE.MeshLambertMaterial({ color: colorHex, map: studTexture });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(x, y, z);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            scene.add(mesh);
+
+            const bObj = {
+                mesh: mesh,
+                isAnchored: true,
+                bounds: new THREE.Box3().setFromObject(mesh),
+                velocity: new THREE.Vector3(0, 0, 0),
+                rotVelocity: new THREE.Vector3(0, 0, 0)
+            };
+
+            destructibleBricks.push(bObj);
+            return bObj;
+        }
+
+        function createDestructibleTower(cx, cy, cz, sizeX, sizeY, colorHex) {
+            const brickSize = 4;
+            for (let y = 0; y < sizeY; y++) {
+                for (let x = 0; x < sizeX; x++) {
+                    for (let z = 0; z < sizeX; z++) {
+                        if (x === 0 || x === sizeX - 1 || z === 0 || z === sizeX - 1 || y === 0) {
+                            const bx = cx + (x - sizeX / 2 + 0.5) * brickSize;
+                            const by = cy + (y + 0.5) * 2;
+                            const bz = cz + (z - sizeX / 2 + 0.5) * brickSize;
+                            createBrickBlock(bx, by, bz, brickSize, 2, brickSize, colorHex);
+                        }
+                    }
+                }
+            }
+        }
+
+        function unanchorBrick(bObj, impulse) {
+            if (!bObj) return;
+            bObj.isAnchored = false;
+            if (impulse) {
+                bObj.velocity.copy(impulse);
+                bObj.rotVelocity.set(
+                    (Math.random() - 0.5) * 4,
+                    (Math.random() - 0.5) * 4,
+                    (Math.random() - 0.5) * 4
+                );
+            }
+        }
+
+        function buildMap(mapType) {
+            userState.activeMap = mapType;
+            document.getElementById('clientTitle').innerText = `ROBLOX Client - ${mapType.toUpperCase()} (2008 Classic)`;
+
+            destructibleBricks.forEach(b => scene.remove(b.mesh));
+            destructibleBricks = [];
+
+            const studMat = new THREE.MeshLambertMaterial({
+                map: createStudTexture(mapType === 'crossroads' ? '#4e9332' : (mapType === 'doomspire' ? '#333333' : '#1e3d59')),
+                roughness: 0.8
+            });
+            studMat.map.repeat.set(32, 32);
+
+            const baseplateGeo = new THREE.BoxGeometry(160, 4, 160);
+            const baseplate = new THREE.Mesh(baseplateGeo, studMat);
+            baseplate.position.set(0, -2, 0);
+            baseplate.receiveShadow = true;
+            scene.add(baseplate);
+
+            const spawnPadGeo = new THREE.CylinderGeometry(4, 4, 0.4, 16);
+            const spawnPadMat = new THREE.MeshLambertMaterial({ color: 0xCCCCCC });
+            const spawnPad = new THREE.Mesh(spawnPadGeo, spawnPadMat);
+            spawnPad.position.set(0, 0.2, 0);
+            scene.add(spawnPad);
+
+            if (mapType === 'crossroads') {
+                createDestructibleTower(0, 0, -35, 6, 12, 0x808080);
+                createDestructibleTower(-30, 0, 20, 4, 8, 0xC4281C);
+                createDestructibleTower(30, 0, 20, 4, 8, 0x0D69AC);
+                createBrickBlock(0, 10, -20, 20, 2, 4, 0xF5CD2F);
+            } else if (mapType === 'doomspire') {
+                createDestructibleTower(-35, 0, -35, 6, 16, 0xC4281C);
+                createDestructibleTower(35, 0, -35, 6, 16, 0x0D69AC);
+                createDestructibleTower(-35, 0, 35, 6, 16, 0x4B9D21);
+                createDestructibleTower(35, 0, 35, 6, 16, 0xF5CD2F);
+            } else if (mapType === 'swordheights') {
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i / 5) * Math.PI * 2;
+                    const x = Math.cos(angle) * 35;
+                    const z = Math.sin(angle) * 35;
+                    createBrickBlock(x, 8 + i * 3, z, 12, 2, 12, 0x00FFFF);
+                }
+            }
+
+            spawnClassicNPCs();
+            resetPlayerCharacter();
+        }
+
         function init3DGameEngine() {
             const container = document.getElementById('canvasContainer');
             const canvas = document.getElementById('gameCanvas');
@@ -956,6 +1029,7 @@
             buildPlayer3DCharacter();
             buildMap('crossroads');
             setupInputListeners(canvas);
+            setupMobileControls();
 
             window.addEventListener('resize', onWindowResize);
             lastTime = performance.now();
@@ -985,6 +1059,75 @@
                 curr = curr.parent;
             }
             return false;
+        }
+
+        function setupMobileControls() {
+            const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            if (isTouchDevice || window.innerWidth < 768) {
+                const mobileControls = document.getElementById('mobile-controls');
+                if (mobileControls) mobileControls.classList.remove('hidden');
+                
+                const joystick = document.getElementById('touch-joystick');
+                const knob = document.getElementById('joystick-knob');
+                
+                let joystickActive = false;
+                let startX = 0, startY = 0;
+                const maxRadius = 35;
+
+                if (joystick) {
+                    const handleStart = (e) => {
+                        joystickActive = true;
+                        const touch = e.touches ? e.touches[0] : e;
+                        const rect = joystick.getBoundingClientRect();
+                        startX = rect.left + rect.width / 2;
+                        startY = rect.top + rect.height / 2;
+                    };
+
+                    const handleMove = (e) => {
+                        if (!joystickActive) return;
+                        const touch = e.touches ? e.touches[0] : e;
+                        let dx = touch.clientX - startX;
+                        let dy = touch.clientY - startY;
+                        let dist = Math.hypot(dx, dy);
+
+                        if (dist > maxRadius) {
+                            dx = (dx / dist) * maxRadius;
+                            dy = (dy / dist) * maxRadius;
+                        }
+
+                        knob.style.transform = `translate(${dx}px, ${dy}px)`;
+
+                        keys['KeyW'] = dy < -10;
+                        keys['KeyS'] = dy > 10;
+                        keys['KeyA'] = dx < -10;
+                        keys['KeyD'] = dx > 10;
+                    };
+
+                    const handleEnd = () => {
+                        joystickActive = false;
+                        knob.style.transform = 'translate(0px, 0px)';
+                        keys['KeyW'] = false;
+                        keys['KeyS'] = false;
+                        keys['KeyA'] = false;
+                        keys['KeyD'] = false;
+                    };
+
+                    joystick.addEventListener('touchstart', handleStart, { passive: true });
+                    window.addEventListener('touchmove', handleMove, { passive: true });
+                    window.addEventListener('touchend', handleEnd, { passive: true });
+                }
+
+                const jumpBtn = document.getElementById('btn-touch-jump');
+                if (jumpBtn) {
+                    jumpBtn.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        if (isGrounded) {
+                            playerVelocity.y = 12.0;
+                            isGrounded = false;
+                        }
+                    });
+                }
+            }
         }
 
         function spawnClassicNPCs() {
@@ -1132,108 +1275,6 @@
                     });
                 }, 4000);
             }
-        }
-
-        function createBrickBlock(x, y, z, w, h, d, colorHex) {
-            const geo = new THREE.BoxGeometry(w, h, d);
-            const colorStr = '#' + new THREE.Color(colorHex).getHexString();
-            const studTexture = createStudTexture(colorStr);
-            studTexture.repeat.set(Math.max(1, Math.floor(w / 2)), Math.max(1, Math.floor(d / 2)));
-
-            const mat = new THREE.MeshLambertMaterial({ color: colorHex, map: studTexture });
-            const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.set(x, y, z);
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-            scene.add(mesh);
-
-            const bObj = {
-                mesh: mesh,
-                isAnchored: true,
-                bounds: new THREE.Box3().setFromObject(mesh),
-                velocity: new THREE.Vector3(0, 0, 0),
-                rotVelocity: new THREE.Vector3(0, 0, 0)
-            };
-
-            destructibleBricks.push(bObj);
-            return bObj;
-        }
-
-        function createDestructibleTower(cx, cy, cz, sizeX, sizeY, colorHex) {
-            const brickSize = 4;
-            for (let y = 0; y < sizeY; y++) {
-                for (let x = 0; x < sizeX; x++) {
-                    for (let z = 0; z < sizeX; z++) {
-                        if (x === 0 || x === sizeX - 1 || z === 0 || z === sizeX - 1 || y === 0) {
-                            const bx = cx + (x - sizeX / 2 + 0.5) * brickSize;
-                            const by = cy + (y + 0.5) * 2;
-                            const bz = cz + (z - sizeX / 2 + 0.5) * brickSize;
-                            createBrickBlock(bx, by, bz, brickSize, 2, brickSize, colorHex);
-                        }
-                    }
-                }
-            }
-        }
-
-        function unanchorBrick(bObj, impulse) {
-            if (!bObj) return;
-            bObj.isAnchored = false;
-            if (impulse) {
-                bObj.velocity.copy(impulse);
-                bObj.rotVelocity.set(
-                    (Math.random() - 0.5) * 4,
-                    (Math.random() - 0.5) * 4,
-                    (Math.random() - 0.5) * 4
-                );
-            }
-        }
-
-        function buildMap(mapType) {
-            userState.activeMap = mapType;
-            document.getElementById('clientTitle').innerText = `ROBLOX Client - ${mapType.toUpperCase()} (2008 Classic)`;
-
-            destructibleBricks.forEach(b => scene.remove(b.mesh));
-            destructibleBricks = [];
-
-            const studMat = new THREE.MeshLambertMaterial({
-                map: createStudTexture(mapType === 'crossroads' ? '#4e9332' : (mapType === 'doomspire' ? '#333333' : '#1e3d59')),
-                roughness: 0.8
-            });
-            studMat.map.repeat.set(32, 32);
-
-            const baseplateGeo = new THREE.BoxGeometry(160, 4, 160);
-            const baseplate = new THREE.Mesh(baseplateGeo, studMat);
-            baseplate.position.set(0, -2, 0);
-            baseplate.receiveShadow = true;
-            scene.add(baseplate);
-
-            const spawnPadGeo = new THREE.CylinderGeometry(4, 4, 0.4, 16);
-            const spawnPadMat = new THREE.MeshLambertMaterial({ color: 0xCCCCCC });
-            const spawnPad = new THREE.Mesh(spawnPadGeo, spawnPadMat);
-            spawnPad.position.set(0, 0.2, 0);
-            scene.add(spawnPad);
-
-            if (mapType === 'crossroads') {
-                createDestructibleTower(0, 0, -35, 6, 12, 0x808080);
-                createDestructibleTower(-30, 0, 20, 4, 8, 0xC4281C);
-                createDestructibleTower(30, 0, 20, 4, 8, 0x0D69AC);
-                createBrickBlock(0, 10, -20, 20, 2, 4, 0xF5CD2F);
-            } else if (mapType === 'doomspire') {
-                createDestructibleTower(-35, 0, -35, 6, 16, 0xC4281C);
-                createDestructibleTower(35, 0, -35, 6, 16, 0x0D69AC);
-                createDestructibleTower(-35, 0, 35, 6, 16, 0x4B9D21);
-                createDestructibleTower(35, 0, 35, 6, 16, 0xF5CD2F);
-            } else if (mapType === 'swordheights') {
-                for (let i = 0; i < 5; i++) {
-                    const angle = (i / 5) * Math.PI * 2;
-                    const x = Math.cos(angle) * 35;
-                    const z = Math.sin(angle) * 35;
-                    createBrickBlock(x, 8 + i * 3, z, 12, 2, 12, 0x00FFFF);
-                }
-            }
-
-            spawnClassicNPCs();
-            resetPlayerCharacter();
         }
 
         function setupInputListeners(canvas) {
@@ -1729,6 +1770,34 @@
             }
         }
 
+        function launchPlace(mapType) {
+            document.getElementById('mapSelect').value = mapType;
+            changeMap(mapType);
+            switchTab('play');
+        }
+
+        function changeMap(mapType) {
+            buildMap(mapType);
+        }
+
+        function toggleFullScreen() {
+            const elem = document.getElementById('canvasContainer');
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen().catch(err => console.log(err));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvasContainer');
+            if (container && camera && renderer) {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            }
+        }
+
         function initAvatarPreview() {
             const container = document.getElementById('avatarPreviewContainer');
             const canvas = document.getElementById('avatarCanvas');
@@ -1894,34 +1963,6 @@
                 setAvatarFace(val);
             }
             switchTab('avatar');
-        }
-
-        function launchPlace(mapType) {
-            document.getElementById('mapSelect').value = mapType;
-            changeMap(mapType);
-            switchTab('play');
-        }
-
-        function changeMap(mapType) {
-            buildMap(mapType);
-        }
-
-        function toggleFullScreen() {
-            const elem = document.getElementById('canvasContainer');
-            if (!document.fullscreenElement) {
-                elem.requestFullscreen().catch(err => console.log(err));
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
-        function onWindowResize() {
-            const container = document.getElementById('canvasContainer');
-            if (container && camera && renderer) {
-                camera.aspect = container.clientWidth / container.clientHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(container.clientWidth, container.clientHeight);
-            }
         }
 
         window.onload = function() {
