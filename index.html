@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROBLOX - Classic 2008-2011 Experience & 3D BrickBattle Engine</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Trebuchet+MS&family=Tahoma:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Tahoma', 'Trebuchet MS', Verdana, sans-serif;
+            background-color: #002244;
+            color: #000;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        /* Classic 2008 Glossy Buttons */
+        .retro-btn-green {
+            background: linear-gradient(to bottom, #85e042 0%, #4ea310 100%);
+            border: 2px solid #2d6108;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 2px 4px rgba(0,0,0,0.3);
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #1f4405;
+        }
+        .retro-btn-green:hover {
+            background: linear-gradient(to bottom, #94ed51 0%, #5bb817 100%);
+        }
+        .retro-btn-green:active {
+            background: linear-gradient(to bottom, #4ea310 0%, #85e042 100%);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .retro-btn-blue {
+            background: linear-gradient(to bottom, #5ba4e5 0%, #1d61a1 100%);
+            border: 2px solid #0d3b66;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.3);
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #0a2542;
+        }
+        .retro-btn-blue:hover {
+            background: linear-gradient(to bottom, #6cb2f2 0%, #2472bc 100%);
+        }
+
+        .retro-panel {
+            background-color: #E1E1E1;
+            border: 2px solid #7F7F7F;
+            box-shadow: inset -1px -1px 0px #404040, inset 1px 1px 0px #FFFFFF;
+        }
+
+        .retro-header-tab {
+            background: linear-gradient(to bottom, #0055aa 0%, #003366 100%);
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            border: 1px solid #002244;
+            border-bottom: none;
+        }
+        .retro-header-tab.active {
+            background: linear-gradient(to bottom, #e1e1e1 0%, #cccccc 100%);
+            color: #000 !important;
+            font-weight: bold;
+        }
+
+        /* Speech bubble floating in 3D */
+        .chat-bubble {
+            position: absolute;
+            background: #ffffff;
+            border: 2px solid #000000;
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #000000;
+            pointer-events: none;
+            transform: translate(-50%, -100%);
+            white-space: nowrap;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            z-index: 50;
+        }
+        .chat-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 8px 0;
+            border-style: solid;
+            border-color: #ffffff transparent;
+            display: block;
+            width: 0;
+        }
+        .chat-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -13px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 12px 10px 0;
+            border-style: solid;
+            border-color: #000000 transparent;
+            display: block;
+            width: 0;
+        }
+
+        /* Tool hotbar slot */
+        .hotbar-slot {
+            width: 54px;
+            height: 54px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #888;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+        .hotbar-slot.active {
+            border-color: #ffff00;
+            background: rgba(255, 255, 0, 0.25);
+            box-shadow: 0 0 10px #ffff00;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #d1d1d1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888888;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 min-h-screen text-slate-100 flex flex-col justify-between">
+
+    <!-- TOP RETRO ROBLOX HEADER -->
+    <header class="w-full bg-gradient-to-b from-[#004080] via-[#002b55] to-[#001a33] border-b-2 border-[#001122] shadow-md">
+        <!-- Banner & User Stat Info -->
+        <div class="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between text-xs text-white">
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-1 cursor-pointer" onclick="switchTab('games')">
+                    <span class="text-2xl font-black tracking-tighter text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] font-sans italic">
+                        ROBLOX
+                    </span>
+                    <span class="bg-red-600 text-white font-bold px-1 py-0.5 text-[9px] rounded uppercase tracking-wider border border-red-400">
+                        2008
+                    </span>
+                </div>
+                <span class="hidden md:inline text-slate-300 italic text-[11px] border-l border-slate-600 pl-3">
+                    "Building Cool Stuff with Blocks"
+                </span>
+            </div>
+
+            <!-- Currency & Login Info -->
+            <div class="flex items-center space-x-4 bg-[#001830] px-3 py-1.5 rounded border border-[#003366]">
+                <div class="flex items-center space-x-1">
+                    <span class="font-bold text-slate-300">User:</span>
+                    <span class="text-yellow-300 font-semibold" id="headerUsername">Guest 1337</span>
+                </div>
+                <div class="flex items-center space-x-1" title="Robux - Premium Currency">
+                    <span class="inline-block w-3.5 h-3.5 bg-green-500 rounded-full text-center text-[9px] font-black leading-3 text-black">R$</span>
+                    <span class="text-green-400 font-bold" id="statRobux">150</span>
+                </div>
+                <div class="flex items-center space-x-1" title="Tickets - Free Currency">
+                    <span class="inline-block w-3.5 h-3.5 bg-amber-500 rounded-sm text-center text-[9px] font-black leading-3 text-black">Tx</span>
+                    <span class="text-amber-300 font-bold" id="statTix">1,240</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Classic Tab Bar -->
+        <div class="max-w-6xl mx-auto px-4 flex space-x-1 text-sm font-bold text-white pt-2">
+            <button onclick="switchTab('play')" id="tab-play" class="retro-header-tab active px-5 py-1.5 text-white hover:text-yellow-300 transition-colors">
+                🎮 Play Game
+            </button>
+            <button onclick="switchTab('games')" id="tab-games" class="retro-header-tab px-5 py-1.5 text-slate-200 hover:text-white transition-colors">
+                🏰 Games List
+            </button>
+            <button onclick="switchTab('avatar')" id="tab-avatar" class="retro-header-tab px-5 py-1.5 text-slate-200 hover:text-white transition-colors">
+                👕 Wardrobe & Character
+            </button>
+            <button onclick="switchTab('catalog')" id="tab-catalog" class="retro-header-tab px-5 py-1.5 text-slate-200 hover:text-white transition-colors">
+                🛒 Catalog / Shop
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN WRAPPER CONTAINER -->
+    <main class="max-w-6xl mx-auto w-full flex-grow p-2 sm:p-4 my-2">
+
+        <!-- VIEW TAB 1: GAME CLIENT WINDOW -->
+        <section id="view-play" class="space-y-3">
+            <div class="retro-panel p-2 flex flex-wrap justify-between items-center bg-[#CCCCCC]">
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 bg-red-500 rounded-full inline-block border border-red-700"></span>
+                    <span class="w-3 h-3 bg-yellow-500 rounded-full inline-block border border-yellow-700"></span>
+                    <span class="w-3 h-3 bg-green-500 rounded-full inline-block border border-green-700"></span>
+                    <span class="font-bold text-xs sm:text-sm text-slate-800 ml-2" id="clientTitle">
+                        ROBLOX Client - Crossroads (2008 Classic)
+                    </span>
+                </div>
+                <div class="flex items-center space-x-2 text-xs">
+                    <span class="hidden sm:inline text-slate-600 font-semibold">Map:</span>
+                    <select id="mapSelect" onchange="changeMap(this.value)" class="bg-white border border-gray-500 rounded px-2 py-0.5 text-slate-900 font-medium">
+                        <option value="crossroads">Crossroads (Classic)</option>
+                        <option value="doomspire">Doomspire Brickbattle</option>
+                        <option value="swordheights">Sword Heights</option>
+                    </select>
+                    <button onclick="resetPlayerCharacter()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-2 py-1 rounded text-xs border border-red-800 shadow">
+                        💀 Reset (OOF)
+                    </button>
+                    <button onclick="toggleFullScreen()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-2 py-1 rounded text-xs border border-slate-900">
+                        ⛶ Fullscreen
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3D GAME CANVAS CONTAINER FRAME -->
+            <div id="canvasContainer" class="relative w-full h-[520px] sm:h-[600px] bg-sky-300 rounded-b border-4 border-[#7F7F7F] overflow-hidden shadow-2xl">
+                
+                <canvas id="gameCanvas" class="w-full h-full block cursor-crosshair"></canvas>
+
+                <!-- UI OVERLAY: Top Left System / Chat Window -->
+                <div class="absolute top-3 left-3 w-64 sm:w-80 pointer-events-auto flex flex-col justify-end space-y-1">
+                    <div id="chatLog" class="h-32 bg-black/60 backdrop-blur-xs p-2 rounded border border-yellow-500/40 overflow-y-auto text-xs text-yellow-300 font-mono space-y-1 shadow">
+                        <div><span class="text-sky-300 font-bold">[System]:</span> Welcome to ROBLOX 2008 Classic!</div>
+                        <div><span class="text-sky-300 font-bold">[System]:</span> WASD to move, Space to Jump, Right-click Drag to rotate camera.</div>
+                        <div><span class="text-sky-300 font-bold">[System]:</span> Left-click aims & fires weapons directly at the cursor point!</div>
+                    </div>
+                    <form onsubmit="handleChatSubmit(event)" class="flex space-x-1">
+                        <input id="chatInput" type="text" placeholder="Press '/' or click to chat..." 
+                            class="flex-grow bg-black/70 text-white text-xs px-2 py-1.5 rounded border border-gray-600 focus:outline-none focus:border-yellow-400 font-sans" />
+                        <button type="submit" class="retro-btn-blue text-xs px-3 py-1 rounded">Send</button>
+                    </form>
+                </div>
+
+                <!-- UI OVERLAY: Top Right Leaderboard / Leaderstats -->
+                <div class="absolute top-3 right-3 w-44 bg-slate-900/80 backdrop-blur border-2 border-slate-600 rounded p-2 text-white font-sans shadow-lg text-xs pointer-events-auto">
+                    <div class="font-bold border-b border-slate-600 pb-1 mb-1 text-center text-yellow-400 uppercase tracking-wider">
+                        Leaderstats
+                    </div>
+                    <div class="space-y-1 font-mono">
+                        <div class="flex justify-between items-center"><span class="text-slate-400">Player:</span> <span class="font-bold text-white truncate max-w-[80px]" id="statPlayerName">Guest 1337</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-400">Knockouts:</span> <span class="font-bold text-green-400" id="statKOs">0</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-400">Wipeouts:</span> <span class="font-bold text-red-400" id="statWOs">0</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-400">Tix Earned:</span> <span class="font-bold text-amber-300" id="statTixEarned">0</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-400">Ping:</span> <span class="font-bold text-sky-300" id="statPing">18 ms</span></div>
+                    </div>
+                </div>
+
+                <!-- UI OVERLAY: Bottom Center Hotbar Weapons (1-5) -->
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 bg-slate-900/85 p-2 rounded-xl border-2 border-slate-600 shadow-2xl pointer-events-auto">
+                    <div onclick="selectTool(1)" id="slot-1" class="hotbar-slot active flex flex-col items-center justify-between p-1">
+                        <span class="text-[10px] text-yellow-400 font-bold self-start">1</span>
+                        <span class="text-2xl">🗡️</span>
+                        <span class="text-[9px] text-white font-bold truncate">Sword</span>
+                    </div>
+                    <div onclick="selectTool(2)" id="slot-2" class="hotbar-slot flex flex-col items-center justify-between p-1">
+                        <span class="text-[10px] text-yellow-400 font-bold self-start">2</span>
+                        <span class="text-2xl">🚀</span>
+                        <span class="text-[9px] text-white font-bold truncate">Rocket</span>
+                    </div>
+                    <div onclick="selectTool(3)" id="slot-3" class="hotbar-slot flex flex-col items-center justify-between p-1">
+                        <span class="text-[10px] text-yellow-400 font-bold self-start">3</span>
+                        <span class="text-2xl">🎯</span>
+                        <span class="text-[9px] text-white font-bold truncate">Slingshot</span>
+                    </div>
+                    <div onclick="selectTool(4)" id="slot-4" class="hotbar-slot flex flex-col items-center justify-between p-1">
+                        <span class="text-[10px] text-yellow-400 font-bold self-start">4</span>
+                        <span class="text-2xl">💣</span>
+                        <span class="text-[9px] text-white font-bold truncate">Bomb</span>
+                    </div>
+                    <div onclick="selectTool(5)" id="slot-5" class="hotbar-slot flex flex-col items-center justify-between p-1">
+                        <span class="text-[10px] text-yellow-400 font-bold self-start">5</span>
+                        <span class="text-2xl">🧱</span>
+                        <span class="text-[9px] text-white font-bold truncate">BTools</span>
+                    </div>
+                </div>
+
+                <!-- 3D Speech Bubbles Container Dynamic Overlay -->
+                <div id="speechBubblesContainer" class="absolute inset-0 pointer-events-none"></div>
+            </div>
+        </section>
+
+        <!-- VIEW TAB 2: GAMES LIST -->
+        <section id="view-games" class="hidden space-y-4">
+            <div class="retro-panel p-4 rounded bg-[#ECECEC]">
+                <h2 class="text-xl font-black text-slate-800 border-b-2 border-slate-400 pb-2 flex justify-between items-center">
+                    <span>🎮 Featured Retro Places (2008-2010)</span>
+                    <span class="text-xs text-slate-600 font-normal">Active Servers: 42</span>
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div class="bg-white border-2 border-slate-400 rounded p-3 flex flex-col justify-between hover:shadow-md transition">
+                        <div>
+                            <div class="h-36 bg-emerald-700 rounded mb-2 flex items-center justify-center border border-slate-300 relative overflow-hidden">
+                                <span class="text-5xl">🏰</span>
+                                <span class="absolute bottom-1 right-2 text-[10px] bg-black/70 text-yellow-300 px-1.5 rounded">Created: 2007</span>
+                            </div>
+                            <h3 class="font-bold text-base text-blue-900">Crossroads (Classic)</h3>
+                            <p class="text-xs text-slate-600 mt-1">
+                                The original ROBLOX arena battlefield! Fight with swords, rockets, slingshots, and bombs on the classic green stud baseplate.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-2 border-t border-slate-200 flex items-center justify-between">
+                            <span class="text-xs text-green-700 font-bold">● 1,240 Online</span>
+                            <button onclick="launchPlace('crossroads')" class="retro-btn-green px-4 py-1.5 rounded text-xs uppercase tracking-wider">
+                                ▶ Play
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border-2 border-slate-400 rounded p-3 flex flex-col justify-between hover:shadow-md transition">
+                        <div>
+                            <div class="h-36 bg-amber-700 rounded mb-2 flex items-center justify-center border border-slate-300 relative overflow-hidden">
+                                <span class="text-5xl">🗼</span>
+                                <span class="absolute bottom-1 right-2 text-[10px] bg-black/70 text-yellow-300 px-1.5 rounded">Created: 2008</span>
+                            </div>
+                            <h3 class="font-bold text-base text-blue-900">Doomspire Brickbattle</h3>
+                            <p class="text-xs text-slate-600 mt-1">
+                                Destroy enemy towers using explosive rockets and bombs while protecting your team's colored spire!
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-2 border-t border-slate-200 flex items-center justify-between">
+                            <span class="text-xs text-green-700 font-bold">● 2,890 Online</span>
+                            <button onclick="launchPlace('doomspire')" class="retro-btn-green px-4 py-1.5 rounded text-xs uppercase tracking-wider">
+                                ▶ Play
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border-2 border-slate-400 rounded p-3 flex flex-col justify-between hover:shadow-md transition">
+                        <div>
+                            <div class="h-36 bg-sky-700 rounded mb-2 flex items-center justify-center border border-slate-300 relative overflow-hidden">
+                                <span class="text-5xl">☁️</span>
+                                <span class="absolute bottom-1 right-2 text-[10px] bg-black/70 text-yellow-300 px-1.5 rounded">Created: 2009</span>
+                            </div>
+                            <h3 class="font-bold text-base text-blue-900">Sword Heights</h3>
+                            <p class="text-xs text-slate-600 mt-1">
+                                High-altitude sky arena duels! Precision sword play on floating glass platforms surrounded by clouds.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-2 border-t border-slate-200 flex items-center justify-between">
+                            <span class="text-xs text-green-700 font-bold">● 840 Online</span>
+                            <button onclick="launchPlace('swordheights')" class="retro-btn-green px-4 py-1.5 rounded text-xs uppercase tracking-wider">
+                                ▶ Play
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW TAB 3: AVATAR CUSTOMIZER -->
+        <section id="view-avatar" class="hidden space-y-4">
+            <div class="retro-panel p-4 rounded bg-[#ECECEC]">
+                <h2 class="text-xl font-black text-slate-800 border-b-2 border-slate-400 pb-2">
+                    👕 Character Customizer & Color Palette
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mt-4">
+                    <div class="md:col-span-5 bg-white border-2 border-slate-400 rounded p-4 flex flex-col items-center shadow-inner">
+                        <span class="font-bold text-sm text-slate-700 mb-2">Live 3D Avatar Preview</span>
+                        <div id="avatarPreviewContainer" class="w-56 h-64 bg-slate-200 rounded border-2 border-slate-400 overflow-hidden relative">
+                            <canvas id="avatarCanvas" class="w-full h-full block"></canvas>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-2 text-center">
+                            Changes apply automatically to your in-game avatar character in real-time!
+                        </p>
+                    </div>
+
+                    <div class="md:col-span-7 space-y-4">
+                        <div class="bg-white border-2 border-slate-400 rounded p-3">
+                            <h3 class="font-bold text-xs uppercase text-slate-700 border-b pb-1 mb-2">
+                                🎨 Select Body Part Color
+                            </h3>
+                            <div class="flex space-x-2 mb-3 text-xs font-bold">
+                                <button onclick="selectBodyPartEdit('head')" id="part-head" class="px-2 py-1 bg-yellow-400 text-black rounded border border-yellow-600">Head</button>
+                                <button onclick="selectBodyPartEdit('torso')" id="part-torso" class="px-2 py-1 bg-slate-200 text-black rounded border border-slate-400">Torso</button>
+                                <button onclick="selectBodyPartEdit('leftArm')" id="part-leftArm" class="px-2 py-1 bg-slate-200 text-black rounded border border-slate-400">L Arm</button>
+                                <button onclick="selectBodyPartEdit('rightArm')" id="part-rightArm" class="px-2 py-1 bg-slate-200 text-black rounded border border-slate-400">R Arm</button>
+                                <button onclick="selectBodyPartEdit('leftLeg')" id="part-leftLeg" class="px-2 py-1 bg-slate-200 text-black rounded border border-slate-400">L Leg</button>
+                                <button onclick="selectBodyPartEdit('rightLeg')" id="part-rightLeg" class="px-2 py-1 bg-slate-200 text-black rounded border border-slate-400">R Leg</button>
+                            </div>
+
+                            <div class="grid grid-cols-6 gap-1.5" id="colorPaletteGrid">
+                                <!-- Colors rendered in JS -->
+                            </div>
+                        </div>
+
+                        <div class="bg-white border-2 border-slate-400 rounded p-3">
+                            <h3 class="font-bold text-xs uppercase text-slate-700 border-b pb-1 mb-2">
+                                🙂 Classic Decal Faces
+                            </h3>
+                            <div class="grid grid-cols-4 gap-2">
+                                <button onclick="setAvatarFace('smile')" class="border p-2 rounded hover:bg-slate-100 flex flex-col items-center text-xs font-bold">
+                                    <span class="text-xl">🙂</span> Classic Smile
+                                </button>
+                                <button onclick="setAvatarFace('epic')" class="border p-2 rounded hover:bg-slate-100 flex flex-col items-center text-xs font-bold">
+                                    <span class="text-xl">😎</span> Epic Face
+                                </button>
+                                <button onclick="setAvatarFace('oof')" class="border p-2 rounded hover:bg-slate-100 flex flex-col items-center text-xs font-bold">
+                                    <span class="text-xl">😮</span> OOF Face
+                                </button>
+                                <button onclick="setAvatarFace('chill')" class="border p-2 rounded hover:bg-slate-100 flex flex-col items-center text-xs font-bold">
+                                    <span class="text-xl">😏</span> Man Face
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border-2 border-slate-400 rounded p-3">
+                            <h3 class="font-bold text-xs uppercase text-slate-700 border-b pb-1 mb-2">
+                                🎩 Hats & Headwear
+                            </h3>
+                            <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+                                <button onclick="setAvatarHat('none')" class="border p-2 rounded hover:bg-slate-100 text-center">None</button>
+                                <button onclick="setAvatarHat('tophat')" class="border p-2 rounded hover:bg-slate-100 text-center">🎩 Classic Top Hat</button>
+                                <button onclick="setAvatarHat('domino')" class="border p-2 rounded hover:bg-slate-100 text-center">👑 Domino Crown</button>
+                                <button onclick="setAvatarHat('visor')" class="border p-2 rounded hover:bg-slate-100 text-center">🥽 Red Visor</button>
+                                <button onclick="setAvatarHat('bighead')" class="border p-2 rounded hover:bg-slate-100 text-center">🗣️ Big Head Mode</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW TAB 4: CATALOG SHOP -->
+        <section id="view-catalog" class="hidden space-y-4">
+            <div class="retro-panel p-4 rounded bg-[#ECECEC]">
+                <h2 class="text-xl font-black text-slate-800 border-b-2 border-slate-400 pb-2 flex justify-between items-center">
+                    <span>🛒 Catalog & Retro Gear Shop</span>
+                    <span class="text-xs text-slate-600 font-normal">Buy classic items with Robux or Tickets!</span>
+                </h2>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4" id="catalogGrid">
+                    <!-- Items rendered dynamically in JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="w-full bg-[#001830] border-t-2 border-[#001122] py-3 text-center text-xs text-slate-400">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+            <div>
+                © 2008-2011 ROBLOX Corporation Classic Replica Engine. Self-Contained WebGL Simulator.
+            </div>
+            <div class="space-x-3 text-slate-300">
+                <a href="#" onclick="alert('ROBLOX Classic Rules:\n1. Be polite in chat\n2. Have fun building!\n3. Respect other players.'); return false;" class="hover:underline">Terms & Safety</a>
+                <span>•</span>
+                <a href="#" onclick="alert('Synthesized Audio Engine running with Web Audio API. 100% reliable sound effects!'); return false;" class="hover:underline">Audio Info</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC BLOCK -->
+    <script>
+        let audioCtx = null;
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playOofSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(360, now);
+            osc.frequency.exponentialRampToValueAtTime(140, now + 0.28);
+
+            gain.gain.setValueAtTime(0.01, now);
+            gain.gain.linearRampToValueAtTime(0.6, now + 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(550, now);
+            filter.Q.setValueAtTime(2.5, now);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.33);
+        }
+
+        function playSwordSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1200, now);
+            osc.frequency.exponentialRampToValueAtTime(300, now + 0.12);
+
+            gain.gain.setValueAtTime(0.4, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.13);
+        }
+
+        function playRocketLaunchSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.linearRampToValueAtTime(600, now + 0.25);
+
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.26);
+        }
+
+        function playExplosionSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(160, now);
+            osc.frequency.exponentialRampToValueAtTime(30, now + 0.5);
+
+            gain.gain.setValueAtTime(0.8, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.56);
+        }
+
+        function playSlingshotSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.exponentialRampToValueAtTime(150, now + 0.08);
+
+            gain.gain.setValueAtTime(0.5, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.09);
+        }
+
+        function playBombBeepSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(880, now);
+
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.06);
+        }
+
+        function playBuildSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.linearRampToValueAtTime(800, now + 0.06);
+
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.07);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.08);
+        }
+
+        function createStudTexture(baseHexColor = '#4e9332') {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = baseHexColor;
+            ctx.fillRect(0, 0, 128, 128);
+
+            const studPositions = [[32, 32], [96, 32], [32, 96], [96, 96]];
+            studPositions.forEach(([x, y]) => {
+                ctx.beginPath();
+                ctx.arc(x + 2, y + 2, 16, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0,0,0,0.25)';
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(x, y, 16, 0, Math.PI * 2);
+                ctx.fillStyle = baseHexColor;
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(x, y, 16, Math.PI * 0.75, Math.PI * 1.75);
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(x, y, 16, Math.PI * 1.75, Math.PI * 0.75);
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+                ctx.stroke();
+
+                ctx.fillStyle = 'rgba(0,0,0,0.15)';
+                ctx.font = 'bold 8px Tahoma';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('R', x, y);
+            });
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
+
+        function createFaceTexture(faceType = 'smile') {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, 256, 256);
+            ctx.lineWidth = 12;
+            ctx.strokeStyle = '#000000';
+            ctx.fillStyle = '#000000';
+
+            if (faceType === 'smile') {
+                ctx.beginPath();
+                ctx.ellipse(80, 90, 16, 26, 0, 0, Math.PI * 2);
+                ctx.ellipse(176, 90, 16, 26, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(128, 130, 65, 0.1 * Math.PI, 0.9 * Math.PI, false);
+                ctx.stroke();
+            } else if (faceType === 'epic') {
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(40, 70, 176, 45);
+                ctx.beginPath();
+                ctx.arc(128, 140, 50, 0, Math.PI, false);
+                ctx.stroke();
+            } else if (faceType === 'oof') {
+                ctx.beginPath();
+                ctx.arc(80, 90, 22, 0, Math.PI * 2);
+                ctx.arc(176, 90, 22, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.ellipse(128, 165, 25, 35, 0, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (faceType === 'chill') {
+                ctx.lineWidth = 8;
+                ctx.beginPath();
+                ctx.moveTo(60, 85); ctx.lineTo(100, 95);
+                ctx.moveTo(156, 95); ctx.lineTo(196, 85);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(80, 105, 10, 0, Math.PI * 2);
+                ctx.arc(176, 105, 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(128, 130, 50, 0.2 * Math.PI, 0.8 * Math.PI, false);
+                ctx.stroke();
+            }
+
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        const ROBLOX_PALETTE = [
+            { name: 'Bright Yellow', hex: '#F5CD2F' },
+            { name: 'Bright Blue', hex: '#0D69AC' },
+            { name: 'Medium Green', hex: '#A1C48C' },
+            { name: 'Bright Red', hex: '#C4281C' },
+            { name: 'Bright Green', hex: '#4B9D21' },
+            { name: 'Dark Orange', hex: '#D7A54D' },
+            { name: 'White', hex: '#F2F3F3' },
+            { name: 'Black', hex: '#1B2A35' },
+            { name: 'Medium Stone Grey', hex: '#A3A2A5' },
+            { name: 'Bright Violet', hex: '#6B327C' },
+            { name: 'Pastel Blue', hex: '#AFDD21' },
+            { name: 'Cool Yellow', hex: '#FDF6C7' }
+        ];
+
+        let userState = {
+            username: 'Guest 1337',
+            robux: 150,
+            tix: 1240,
+            kos: 0,
+            wos: 0,
+            tixEarned: 0,
+            selectedTool: 1,
+            activeMap: 'crossroads',
+            editingPart: 'head',
+            avatar: {
+                colors: {
+                    head: '#F5CD2F',
+                    torso: '#0D69AC',
+                    leftArm: '#F5CD2F',
+                    rightArm: '#F5CD2F',
+                    leftLeg: '#A1C48C',
+                    rightLeg: '#A1C48C'
+                },
+                face: 'smile',
+                hat: 'none'
+            }
+        };
+
+        let scene, camera, renderer;
+        let avatarPreviewScene, avatarPreviewCamera, avatarPreviewRenderer, previewAvatarGroup;
+        let playerGroup, playerHeadMesh, playerTorsoMesh, swordMesh;
+        let playerPos = new THREE.Vector3(0, 5, 0);
+        let playerVelocity = new THREE.Vector3(0, 0, 0);
+        let isGrounded = false;
+        let activeProjectiles = [];
+        let destructibleBricks = [];
+        let activeBomb = null;
+        let activeSpeechBubbles = [];
+        let lastTime = performance.now();
+
+        // 3D Mouse Targeting & AI NPCs
+        let raycaster = new THREE.Raycaster();
+        let mousePos = new THREE.Vector2();
+        let npcBots = [];
+
+        const keys = {};
+        let cameraYaw = 0, cameraPitch = 0.3;
+
+        function createSwordMesh() {
+            const group = new THREE.Group();
+            const bladeGeo = new THREE.BoxGeometry(0.2, 2.5, 0.05);
+            const bladeMat = new THREE.MeshStandardMaterial({ color: 0xCCCCCC, metalness: 0.8, roughness: 0.2 });
+            const blade = new THREE.Mesh(bladeGeo, bladeMat);
+            blade.position.y = 1.25;
+            group.add(blade);
+
+            const guardGeo = new THREE.BoxGeometry(0.8, 0.1, 0.2);
+            const guardMat = new THREE.MeshLambertMaterial({ color: 0x444444 });
+            const guard = new THREE.Mesh(guardGeo, guardMat);
+            guard.position.y = 0.0;
+            group.add(guard);
+
+            const handleGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.6, 8);
+            const handleMat = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const handle = new THREE.Mesh(handleGeo, handleMat);
+            handle.position.y = -0.3;
+            group.add(handle);
+
+            return group;
+        }
+
+        function applyHatToHead(headMesh, hatName) {
+            const existingHats = [];
+            headMesh.children.forEach(c => {
+                if (c.name === 'hatObj') existingHats.push(c);
+            });
+            existingHats.forEach(h => headMesh.remove(h));
+
+            headMesh.scale.set(1, 1, 1);
+
+            if (hatName === 'tophat') {
+                const hatGroup = new THREE.Group();
+                hatGroup.name = 'hatObj';
+                const brim = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.1, 16), new THREE.MeshLambertMaterial({ color: 0x111111 }));
+                brim.position.y = 0.65;
+                const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 1.2, 16), new THREE.MeshLambertMaterial({ color: 0x111111 }));
+                crown.position.y = 1.3;
+                const ribbon = new THREE.Mesh(new THREE.CylinderGeometry(0.82, 0.82, 0.2, 16), new THREE.MeshLambertMaterial({ color: 0xCC0000 }));
+                ribbon.position.y = 0.8;
+                hatGroup.add(brim, crown, ribbon);
+                headMesh.add(hatGroup);
+            } else if (hatName === 'domino') {
+                const crown = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.6, 1.4), new THREE.MeshStandardMaterial({ color: 0xFFD700, metalness: 0.6 }));
+                crown.name = 'hatObj';
+                crown.position.y = 0.8;
+                headMesh.add(crown);
+            } else if (hatName === 'visor') {
+                const visor = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.3, 0.8), new THREE.MeshLambertMaterial({ color: 0xFF0000 }));
+                visor.name = 'hatObj';
+                visor.position.set(0, 0.2, 0.3);
+                headMesh.add(visor);
+            } else if (hatName === 'bighead') {
+                headMesh.scale.set(2.2, 2.2, 2.2);
+            }
+        }
+
+        function buildPlayer3DCharacter() {
+            if (!scene) return;
+            if (playerGroup) {
+                scene.remove(playerGroup);
+            }
+
+            playerGroup = new THREE.Group();
+            const c = userState.avatar.colors;
+
+            const matHead = new THREE.MeshLambertMaterial({ color: c.head });
+            const matTorso = new THREE.MeshLambertMaterial({ color: c.torso });
+            const matLArm = new THREE.MeshLambertMaterial({ color: c.leftArm });
+            const matRArm = new THREE.MeshLambertMaterial({ color: c.rightArm });
+            const matLLeg = new THREE.MeshLambertMaterial({ color: c.leftLeg });
+            const matRLeg = new THREE.MeshLambertMaterial({ color: c.rightLeg });
+
+            const faceMat = new THREE.MeshLambertMaterial({
+                map: createFaceTexture(userState.avatar.face),
+                transparent: true
+            });
+
+            const headGeo = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+            const headMaterials = [matHead, matHead, matHead, matHead, faceMat, matHead];
+            playerHeadMesh = new THREE.Mesh(headGeo, headMaterials);
+            playerHeadMesh.position.y = 4.6;
+            playerHeadMesh.name = 'head';
+
+            const headStudGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.2, 16);
+            const headStud = new THREE.Mesh(headStudGeo, matHead);
+            headStud.position.y = 0.7;
+            playerHeadMesh.add(headStud);
+
+            playerTorsoMesh = new THREE.Mesh(new THREE.BoxGeometry(2.0, 2.0, 1.0), matTorso);
+            playerTorsoMesh.position.y = 3.0;
+            playerTorsoMesh.name = 'torso';
+
+            const armGeo = new THREE.BoxGeometry(1.0, 2.0, 1.0);
+            armGeo.translate(0, -1.0, 0);
+
+            const leftArm = new THREE.Mesh(armGeo, matLArm);
+            leftArm.position.set(-1.5, 4.0, 0);
+            leftArm.name = 'leftArm';
+
+            const rightArm = new THREE.Mesh(armGeo, matRArm);
+            rightArm.position.set(1.5, 4.0, 0);
+            rightArm.name = 'rightArm';
+
+            swordMesh = createSwordMesh();
+            swordMesh.position.set(0, -1.8, 0.5);
+            swordMesh.rotation.x = Math.PI / 2;
+            swordMesh.visible = (userState.selectedTool === 1);
+            rightArm.add(swordMesh);
+
+            const legGeo = new THREE.BoxGeometry(0.95, 2.0, 1.0);
+            legGeo.translate(0, -1.0, 0);
+
+            const leftLeg = new THREE.Mesh(legGeo, matLLeg);
+            leftLeg.position.set(-0.5, 2.0, 0);
+            leftLeg.name = 'leftLeg';
+
+            const rightLeg = new THREE.Mesh(legGeo, matRLeg);
+            rightLeg.position.set(0.5, 2.0, 0);
+            rightLeg.name = 'rightLeg';
+
+            applyHatToHead(playerHeadMesh, userState.avatar.hat);
+
+            playerGroup.add(playerHeadMesh, playerTorsoMesh, leftArm, rightArm, leftLeg, rightLeg);
+            playerGroup.position.copy(playerPos);
+            scene.add(playerGroup);
+        }
+
+        function resetPlayerCharacter() {
+            playOofSound();
+            playerPos.set(0, 5, 0);
+            playerVelocity.set(0, 0, 0);
+            buildPlayer3DCharacter();
+        }
+
+        function init3DGameEngine() {
+            const container = document.getElementById('canvasContainer');
+            const canvas = document.getElementById('gameCanvas');
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x71B5E5);
+            scene.fog = new THREE.FogExp2(0x71B5E5, 0.008);
+
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(50, 100, 30);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
+            scene.add(dirLight);
+
+            buildPlayer3DCharacter();
+            buildMap('crossroads');
+            setupInputListeners(canvas);
+
+            window.addEventListener('resize', onWindowResize);
+            lastTime = performance.now();
+            animateGameLoop();
+        }
+
+        function getMouseTarget3D() {
+            raycaster.setFromCamera(mousePos, camera);
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            
+            for (let hit of intersects) {
+                if (!isDescendantOf(hit.object, playerGroup)) {
+                    return hit.point;
+                }
+            }
+
+            const target = new THREE.Vector3();
+            const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -playerPos.y);
+            raycaster.ray.intersectPlane(plane, target);
+            return target || playerPos.clone().add(new THREE.Vector3(0, 0, -10));
+        }
+
+        function isDescendantOf(object, parent) {
+            let curr = object;
+            while (curr) {
+                if (curr === parent) return true;
+                curr = curr.parent;
+            }
+            return false;
+        }
+
+        function spawnClassicNPCs() {
+            npcBots.forEach(bot => {
+                if (bot.group) scene.remove(bot.group);
+            });
+            npcBots = [];
+
+            const botConfigs = [
+                { name: 'Noob_Master', x: -15, z: -15, colorTorso: 0x0D69AC, colorLegs: 0x00FF00 },
+                { name: 'Guest_404', x: 20, z: -20, colorTorso: 0x000000, colorLegs: 0x333333 },
+                { name: 'Builderman_AI', x: -25, z: 20, colorTorso: 0xC4281C, colorLegs: 0x0D69AC },
+                { name: 'Telamon_Bot', x: 18, z: 22, colorTorso: 0xF5CD2F, colorLegs: 0xC4281C }
+            ];
+
+            botConfigs.forEach(cfg => createNPCBot(cfg));
+        }
+
+        function createNPCBot(cfg) {
+            const botGroup = new THREE.Group();
+            const matYellow = new THREE.MeshLambertMaterial({ color: 0xF5CD2F });
+            const matTorso = new THREE.MeshLambertMaterial({ color: cfg.colorTorso });
+            const matLegs = new THREE.MeshLambertMaterial({ color: cfg.colorLegs });
+
+            const faceMat = new THREE.MeshLambertMaterial({
+                map: createFaceTexture('smile'),
+                transparent: true
+            });
+
+            const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), [matYellow, matYellow, matYellow, matYellow, faceMat, matYellow]);
+            head.position.y = 4.6;
+            const stud = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.2, 16), matYellow);
+            stud.position.y = 0.7;
+            head.add(stud);
+            botGroup.add(head);
+
+            const torso = new THREE.Mesh(new THREE.BoxGeometry(2.0, 2.0, 1.0), matTorso);
+            torso.position.y = 3.0;
+            botGroup.add(torso);
+
+            const armGeo = new THREE.BoxGeometry(1.0, 2.0, 1.0);
+            armGeo.translate(0, -1.0, 0);
+
+            const lArm = new THREE.Mesh(armGeo, matYellow);
+            lArm.position.set(-1.5, 4.0, 0);
+            botGroup.add(lArm);
+
+            const rArm = new THREE.Mesh(armGeo, matYellow);
+            rArm.position.set(1.5, 4.0, 0);
+            botGroup.add(rArm);
+
+            const legGeo = new THREE.BoxGeometry(0.95, 2.0, 1.0);
+            legGeo.translate(0, -1.0, 0);
+
+            const lLeg = new THREE.Mesh(legGeo, matLegs);
+            lLeg.position.set(-0.5, 2.0, 0);
+            botGroup.add(lLeg);
+
+            const rLeg = new THREE.Mesh(legGeo, matLegs);
+            rLeg.position.set(0.5, 2.0, 0);
+            botGroup.add(rLeg);
+
+            botGroup.position.set(cfg.x, 0, cfg.z);
+            scene.add(botGroup);
+
+            const botObj = {
+                name: cfg.name,
+                group: botGroup,
+                pos: botGroup.position,
+                vel: new THREE.Vector3(0, 0, 0),
+                hp: 100,
+                alive: true,
+                targetChangeTimer: 0,
+                moveTarget: new THREE.Vector3(cfg.x, 0, cfg.z)
+            };
+
+            npcBots.push(botObj);
+        }
+
+        function updateNPCBots(dt) {
+            npcBots.forEach(bot => {
+                if (!bot.alive) return;
+
+                bot.targetChangeTimer -= dt;
+                if (bot.targetChangeTimer <= 0) {
+                    bot.targetChangeTimer = 2 + Math.random() * 3;
+                    if (Math.random() < 0.6) {
+                        bot.moveTarget.copy(playerPos);
+                    } else {
+                        bot.moveTarget.set(bot.pos.x + (Math.random() - 0.5) * 30, 0, bot.pos.z + (Math.random() - 0.5) * 30);
+                    }
+                }
+
+                const dir = bot.moveTarget.clone().sub(bot.pos);
+                dir.y = 0;
+                if (dir.length() > 1.5) {
+                    dir.normalize();
+                    bot.pos.x += dir.x * 7.0 * dt;
+                    bot.pos.z += dir.z * 7.0 * dt;
+                    bot.group.rotation.y = Math.atan2(dir.x, dir.z);
+
+                    const cycle = Math.sin(performance.now() * 0.01);
+                    bot.group.children[2].rotation.x = -cycle * 0.6; // L Arm
+                    bot.group.children[3].rotation.x = cycle * 0.6;  // R Arm
+                    bot.group.children[4].rotation.x = cycle * 0.6;  // L Leg
+                    bot.group.children[5].rotation.x = -cycle * 0.6; // R Leg
+                }
+
+                if (bot.pos.distanceTo(playerPos) < 3.0 && Math.random() < 0.03) {
+                    playSwordSound();
+                    userState.wos++;
+                    document.getElementById('statWOs').innerText = userState.wos;
+                    resetPlayerCharacter();
+                }
+            });
+        }
+
+        function damageNPC(bot, damageAmount) {
+            if (!bot.alive) return;
+            bot.hp -= damageAmount;
+            if (bot.hp <= 0) {
+                bot.alive = false;
+                playOofSound();
+                
+                bot.group.children.forEach(child => {
+                    child.position.add(new THREE.Vector3((Math.random() - 0.5) * 2, Math.random() * 2, (Math.random() - 0.5) * 2));
+                    child.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
+                });
+
+                userState.kos++;
+                userState.tix += 50;
+                userState.tixEarned += 50;
+                document.getElementById('statKOs').innerText = userState.kos;
+                document.getElementById('statTix').innerText = userState.tix;
+                document.getElementById('statTixEarned').innerText = userState.tixEarned;
+
+                setTimeout(() => {
+                    scene.remove(bot.group);
+                    createNPCBot({
+                        name: bot.name,
+                        x: (Math.random() - 0.5) * 40,
+                        z: (Math.random() - 0.5) * 40,
+                        colorTorso: 0x0D69AC,
+                        colorLegs: 0x00FF00
+                    });
+                }, 4000);
+            }
+        }
+
+        function createBrickBlock(x, y, z, w, h, d, colorHex) {
+            const geo = new THREE.BoxGeometry(w, h, d);
+            const colorStr = '#' + new THREE.Color(colorHex).getHexString();
+            const studTexture = createStudTexture(colorStr);
+            studTexture.repeat.set(Math.max(1, Math.floor(w / 2)), Math.max(1, Math.floor(d / 2)));
+
+            const mat = new THREE.MeshLambertMaterial({ color: colorHex, map: studTexture });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(x, y, z);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            scene.add(mesh);
+
+            const bObj = {
+                mesh: mesh,
+                isAnchored: true,
+                bounds: new THREE.Box3().setFromObject(mesh),
+                velocity: new THREE.Vector3(0, 0, 0),
+                rotVelocity: new THREE.Vector3(0, 0, 0)
+            };
+
+            destructibleBricks.push(bObj);
+            return bObj;
+        }
+
+        function createDestructibleTower(cx, cy, cz, sizeX, sizeY, colorHex) {
+            const brickSize = 4;
+            for (let y = 0; y < sizeY; y++) {
+                for (let x = 0; x < sizeX; x++) {
+                    for (let z = 0; z < sizeX; z++) {
+                        if (x === 0 || x === sizeX - 1 || z === 0 || z === sizeX - 1 || y === 0) {
+                            const bx = cx + (x - sizeX / 2 + 0.5) * brickSize;
+                            const by = cy + (y + 0.5) * 2;
+                            const bz = cz + (z - sizeX / 2 + 0.5) * brickSize;
+                            createBrickBlock(bx, by, bz, brickSize, 2, brickSize, colorHex);
+                        }
+                    }
+                }
+            }
+        }
+
+        function unanchorBrick(bObj, impulse) {
+            if (!bObj) return;
+            bObj.isAnchored = false;
+            if (impulse) {
+                bObj.velocity.copy(impulse);
+                bObj.rotVelocity.set(
+                    (Math.random() - 0.5) * 4,
+                    (Math.random() - 0.5) * 4,
+                    (Math.random() - 0.5) * 4
+                );
+            }
+        }
+
+        function buildMap(mapType) {
+            userState.activeMap = mapType;
+            document.getElementById('clientTitle').innerText = `ROBLOX Client - ${mapType.toUpperCase()} (2008 Classic)`;
+
+            destructibleBricks.forEach(b => scene.remove(b.mesh));
+            destructibleBricks = [];
+
+            const studMat = new THREE.MeshLambertMaterial({
+                map: createStudTexture(mapType === 'crossroads' ? '#4e9332' : (mapType === 'doomspire' ? '#333333' : '#1e3d59')),
+                roughness: 0.8
+            });
+            studMat.map.repeat.set(32, 32);
+
+            const baseplateGeo = new THREE.BoxGeometry(160, 4, 160);
+            const baseplate = new THREE.Mesh(baseplateGeo, studMat);
+            baseplate.position.set(0, -2, 0);
+            baseplate.receiveShadow = true;
+            scene.add(baseplate);
+
+            const spawnPadGeo = new THREE.CylinderGeometry(4, 4, 0.4, 16);
+            const spawnPadMat = new THREE.MeshLambertMaterial({ color: 0xCCCCCC });
+            const spawnPad = new THREE.Mesh(spawnPadGeo, spawnPadMat);
+            spawnPad.position.set(0, 0.2, 0);
+            scene.add(spawnPad);
+
+            if (mapType === 'crossroads') {
+                createDestructibleTower(0, 0, -35, 6, 12, 0x808080);
+                createDestructibleTower(-30, 0, 20, 4, 8, 0xC4281C);
+                createDestructibleTower(30, 0, 20, 4, 8, 0x0D69AC);
+                createBrickBlock(0, 10, -20, 20, 2, 4, 0xF5CD2F);
+            } else if (mapType === 'doomspire') {
+                createDestructibleTower(-35, 0, -35, 6, 16, 0xC4281C);
+                createDestructibleTower(35, 0, -35, 6, 16, 0x0D69AC);
+                createDestructibleTower(-35, 0, 35, 6, 16, 0x4B9D21);
+                createDestructibleTower(35, 0, 35, 6, 16, 0xF5CD2F);
+            } else if (mapType === 'swordheights') {
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i / 5) * Math.PI * 2;
+                    const x = Math.cos(angle) * 35;
+                    const z = Math.sin(angle) * 35;
+                    createBrickBlock(x, 8 + i * 3, z, 12, 2, 12, 0x00FFFF);
+                }
+            }
+
+            spawnClassicNPCs();
+            resetPlayerCharacter();
+        }
+
+        function setupInputListeners(canvas) {
+            window.addEventListener('keydown', (e) => {
+                keys[e.code] = true;
+                if (['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5'].includes(e.code)) {
+                    const num = parseInt(e.code.replace('Digit', ''));
+                    selectTool(num);
+                }
+                if (e.code === 'Slash') {
+                    e.preventDefault();
+                    document.getElementById('chatInput').focus();
+                }
+                if (e.code === 'Space' && isGrounded) {
+                    playerVelocity.y = 12.0;
+                    isGrounded = false;
+                }
+            });
+
+            window.addEventListener('keyup', (e) => {
+                keys[e.code] = false;
+            });
+
+            canvas.addEventListener('mousedown', (e) => {
+                if (e.button === 0) {
+                    triggerToolAction();
+                }
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                mousePos.x = ((e.clientX - rect.left) / canvas.clientWidth) * 2 - 1;
+                mousePos.y = -((e.clientY - rect.top) / canvas.clientHeight) * 2 + 1;
+
+                if (e.buttons === 2) {
+                    cameraYaw -= e.movementX * 0.005;
+                    cameraPitch = Math.max(-0.2, Math.min(1.2, cameraPitch + e.movementY * 0.005));
+                }
+            });
+
+            canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        }
+
+        function selectTool(num) {
+            userState.selectedTool = num;
+            for (let i = 1; i <= 5; i++) {
+                const slot = document.getElementById(`slot-${i}`);
+                if (slot) {
+                    if (i === num) slot.classList.add('active');
+                    else slot.classList.remove('active');
+                }
+            }
+            if (swordMesh) {
+                swordMesh.visible = (num === 1);
+            }
+        }
+
+        function animateSwordSlash() {
+            if (!playerGroup) return;
+            const rArm = playerGroup.getObjectByName('rightArm');
+            if (!rArm) return;
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 0.2;
+                rArm.rotation.x = -Math.sin(progress * Math.PI) * 1.5;
+                rArm.rotation.y = Math.sin(progress * Math.PI) * 0.5;
+                if (progress >= 1.0) {
+                    clearInterval(interval);
+                    rArm.rotation.x = 0;
+                    rArm.rotation.y = 0;
+                }
+            }, 16);
+        }
+
+        function triggerToolAction() {
+            const tool = userState.selectedTool;
+
+            if (tool === 1) {
+                playSwordSound();
+                animateSwordSlash();
+                const targetPoint = getMouseTarget3D();
+                
+                npcBots.forEach(bot => {
+                    if (bot.alive && (bot.pos.distanceTo(playerPos) < 4.5 || bot.pos.distanceTo(targetPoint) < 3.5)) {
+                        damageNPC(bot, 50);
+                    }
+                });
+
+                destructibleBricks.forEach(b => {
+                    if (b.mesh.position.distanceTo(targetPoint) < 4) {
+                        const pushDir = targetPoint.clone().sub(playerPos).normalize().multiplyScalar(15);
+                        unanchorBrick(b, pushDir);
+                    }
+                });
+            } else if (tool === 2) {
+                playRocketLaunchSound();
+                fireRocketProjectile();
+            } else if (tool === 3) {
+                playSlingshotSound();
+                fireSlingshotPellet();
+            } else if (tool === 4) {
+                plantTimeBomb();
+            } else if (tool === 5) {
+                useBTools();
+            }
+        }
+
+        function fireRocketProjectile() {
+            const targetPoint = getMouseTarget3D();
+            const startPos = playerPos.clone().add(new THREE.Vector3(0, 2.5, 0));
+            const launchDir = targetPoint.clone().sub(startPos).normalize();
+
+            const rocketGeo = new THREE.CylinderGeometry(0.2, 0.2, 1.2, 8);
+            const rocketMat = new THREE.MeshLambertMaterial({ color: 0xFF0000 });
+            const rocketMesh = new THREE.Mesh(rocketGeo, rocketMat);
+
+            rocketMesh.position.copy(startPos);
+            rocketMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), launchDir);
+            scene.add(rocketMesh);
+
+            activeProjectiles.push({
+                type: 'rocket',
+                mesh: rocketMesh,
+                velocity: launchDir.multiplyScalar(38),
+                life: 3.5
+            });
+        }
+
+        function fireSlingshotPellet() {
+            const targetPoint = getMouseTarget3D();
+            const startPos = playerPos.clone().add(new THREE.Vector3(0, 2.5, 0));
+            const launchDir = targetPoint.clone().sub(startPos).normalize();
+
+            const pelletGeo = new THREE.SphereGeometry(0.35, 8, 8);
+            const pelletMat = new THREE.MeshBasicMaterial({ color: 0xFFFF00 });
+            const pelletMesh = new THREE.Mesh(pelletGeo, pelletMat);
+
+            pelletMesh.position.copy(startPos);
+            scene.add(pelletMesh);
+
+            activeProjectiles.push({
+                type: 'pellet',
+                mesh: pelletMesh,
+                velocity: launchDir.multiplyScalar(45),
+                life: 2.5
+            });
+        }
+
+        function plantTimeBomb() {
+            if (activeBomb) return;
+            const targetPoint = getMouseTarget3D();
+            const bombGeo = new THREE.SphereGeometry(0.8, 16, 16);
+            const bombMat = new THREE.MeshLambertMaterial({ color: 0x222222 });
+            const bombMesh = new THREE.Mesh(bombGeo, bombMat);
+
+            bombMesh.position.copy(playerPos).add(new THREE.Vector3(0, 2, 0));
+            scene.add(bombMesh);
+
+            const throwVelocity = targetPoint.clone().sub(playerPos).clampLength(0, 20);
+            throwVelocity.y = 8;
+
+            activeBomb = {
+                mesh: bombMesh,
+                mat: bombMat,
+                velocity: throwVelocity,
+                timer: 2.5
+            };
+
+            let flashInterval = setInterval(() => {
+                if (!activeBomb) { clearInterval(flashInterval); return; }
+                playBombBeepSound();
+                bombMat.color.setHex(bombMat.color.getHex() === 0x222222 ? 0xFF0000 : 0x222222);
+            }, 300);
+
+            setTimeout(() => {
+                clearInterval(flashInterval);
+                if (activeBomb) {
+                    triggerExplosion(activeBomb.mesh.position, 18);
+                    scene.remove(activeBomb.mesh);
+                    activeBomb = null;
+                }
+            }, 2500);
+        }
+
+        function useBTools() {
+            const targetPoint = getMouseTarget3D();
+            createBrickBlock(targetPoint.x, Math.max(1.5, targetPoint.y + 1.5), targetPoint.z, 3, 3, 3, 0x0D69AC);
+            playBuildSound();
+        }
+
+        function triggerExplosion(pos, radius) {
+            playExplosionSound();
+
+            const flashGeo = new THREE.SphereGeometry(radius / 2, 16, 16);
+            const flashMat = new THREE.MeshBasicMaterial({ color: 0xFF5500, transparent: true, opacity: 0.8 });
+            const flashMesh = new THREE.Mesh(flashGeo, flashMat);
+            flashMesh.position.copy(pos);
+            scene.add(flashMesh);
+
+            setTimeout(() => scene.remove(flashMesh), 150);
+
+            destructibleBricks.forEach(b => {
+                const dist = b.mesh.position.distanceTo(pos);
+                if (dist < radius) {
+                    const dir = b.mesh.position.clone().sub(pos).normalize();
+                    const force = (1 - dist / radius) * 45;
+                    dir.y += 0.5;
+                    unanchorBrick(b, dir.multiplyScalar(force));
+                }
+            });
+
+            npcBots.forEach(bot => {
+                if (bot.pos.distanceTo(pos) < radius) {
+                    damageNPC(bot, 100);
+                }
+            });
+
+            if (playerPos.distanceTo(pos) < radius / 1.5) {
+                userState.wos++;
+                document.getElementById('statWOs').innerText = userState.wos;
+                resetPlayerCharacter();
+            }
+        }
+
+        function animateGameLoop() {
+            requestAnimationFrame(animateGameLoop);
+
+            const now = performance.now();
+            const dt = Math.min((now - lastTime) / 1000, 0.1);
+            lastTime = now;
+
+            const moveDir = new THREE.Vector3();
+            if (keys['KeyW'] || keys['ArrowUp']) moveDir.z -= 1;
+            if (keys['KeyS'] || keys['ArrowDown']) moveDir.z += 1;
+            if (keys['KeyA'] || keys['ArrowLeft']) moveDir.x -= 1;
+            if (keys['KeyD'] || keys['ArrowRight']) moveDir.x += 1;
+
+            moveDir.normalize();
+            moveDir.applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw);
+
+            const speed = 14.0;
+            const playerRadius = 0.85;
+            const playerHeight = 5.0;
+
+            const checkYOverlap = (bMin, bMax) => (playerPos.y + 0.1 < bMax.y) && (playerPos.y + playerHeight - 0.1 > bMin.y);
+            const checkZOverlap = (bMin, bMax) => (playerPos.z - playerRadius < bMax.z) && (playerPos.z + playerRadius > bMin.z);
+            const checkXOverlap = (bMin, bMax) => (playerPos.x - playerRadius < bMax.x) && (playerPos.x + playerRadius > bMin.x);
+
+            playerPos.x += moveDir.x * speed * dt;
+            destructibleBricks.forEach(b => {
+                b.bounds.setFromObject(b.mesh);
+                const bMin = b.bounds.min;
+                const bMax = b.bounds.max;
+
+                if (checkYOverlap(bMin, bMax) && checkZOverlap(bMin, bMax) && checkXOverlap(bMin, bMax)) {
+                    const overlapMin = (playerPos.x + playerRadius) - bMin.x;
+                    const overlapMax = bMax.x - (playerPos.x - playerRadius);
+                    if (overlapMin < overlapMax) {
+                        playerPos.x = bMin.x - playerRadius;
+                    } else {
+                        playerPos.x = bMax.x + playerRadius;
+                    }
+                }
+            });
+
+            playerPos.z += moveDir.z * speed * dt;
+            destructibleBricks.forEach(b => {
+                const bMin = b.bounds.min;
+                const bMax = b.bounds.max;
+
+                if (checkYOverlap(bMin, bMax) && checkXOverlap(bMin, bMax) && checkZOverlap(bMin, bMax)) {
+                    const overlapMin = (playerPos.z + playerRadius) - bMin.z;
+                    const overlapMax = bMax.z - (playerPos.z - playerRadius);
+                    if (overlapMin < overlapMax) {
+                        playerPos.z = bMin.z - playerRadius;
+                    } else {
+                        playerPos.z = bMax.z + playerRadius;
+                    }
+                }
+            });
+
+            playerVelocity.y -= 30.0 * dt;
+            playerPos.y += playerVelocity.y * dt;
+
+            isGrounded = false;
+            if (playerPos.y <= 0) {
+                playerPos.y = 0;
+                playerVelocity.y = 0;
+                isGrounded = true;
+            }
+
+            destructibleBricks.forEach(b => {
+                const bMin = b.bounds.min;
+                const bMax = b.bounds.max;
+
+                if (checkXOverlap(bMin, bMax) && checkZOverlap(bMin, bMax)) {
+                    if (playerPos.y < bMax.y && (playerPos.y + playerHeight) > bMin.y) {
+                        if (playerVelocity.y <= 0 && playerPos.y >= bMax.y - 1.2) {
+                            playerPos.y = bMax.y;
+                            playerVelocity.y = 0;
+                            isGrounded = true;
+                        } else if (playerVelocity.y > 0 && (playerPos.y + playerHeight) <= bMin.y + 1.2) {
+                            playerPos.y = bMin.y - playerHeight;
+                            playerVelocity.y = 0;
+                        }
+                    }
+                }
+            });
+
+            if (playerPos.y < -30) {
+                userState.wos++;
+                document.getElementById('statWOs').innerText = userState.wos;
+                resetPlayerCharacter();
+            }
+
+            playerGroup.position.copy(playerPos);
+            playerGroup.rotation.y = cameraYaw + Math.PI;
+
+            if (moveDir.lengthSq() > 0.1 && isGrounded) {
+                const walkCycle = Math.sin(now * 0.012);
+                const lLeg = playerGroup.getObjectByName('leftLeg');
+                const rLeg = playerGroup.getObjectByName('rightLeg');
+                const lArm = playerGroup.getObjectByName('leftArm');
+                const rArm = playerGroup.getObjectByName('rightArm');
+
+                if (lLeg) lLeg.rotation.x = walkCycle * 0.8;
+                if (rLeg) rLeg.rotation.x = -walkCycle * 0.8;
+                if (lArm) lArm.rotation.x = -walkCycle * 0.6;
+                if (rArm && userState.selectedTool !== 1) rArm.rotation.x = walkCycle * 0.6;
+            } else {
+                ['leftLeg', 'rightLeg', 'leftArm', 'rightArm'].forEach(partName => {
+                    const part = playerGroup.getObjectByName(partName);
+                    if (part && (partName !== 'rightArm' || userState.selectedTool !== 1)) {
+                        part.rotation.x = 0;
+                    }
+                });
+            }
+
+            if (activeBomb) {
+                activeBomb.velocity.y -= 20 * dt;
+                activeBomb.mesh.position.addScaledVector(activeBomb.velocity, dt);
+                if (activeBomb.mesh.position.y <= 0.8) {
+                    activeBomb.mesh.position.y = 0.8;
+                    activeBomb.velocity.set(0, 0, 0);
+                }
+            }
+
+            updateNPCBots(dt);
+
+            const camDistance = 18;
+            const camX = playerPos.x + camDistance * Math.sin(cameraYaw) * Math.cos(cameraPitch);
+            const camY = playerPos.y + 3.5 + camDistance * Math.sin(cameraPitch);
+            const camZ = playerPos.z + camDistance * Math.cos(cameraYaw) * Math.cos(cameraPitch);
+
+            camera.position.set(camX, camY, camZ);
+            camera.lookAt(playerPos.x, playerPos.y + 3.0, playerPos.z);
+
+            updatePhysicsAndProjectiles(dt);
+            updateSpeechBubbles();
+
+            renderer.render(scene, camera);
+        }
+
+        function updatePhysicsAndProjectiles(dt) {
+            destructibleBricks.forEach(b => {
+                if (!b.isAnchored) {
+                    b.velocity.y -= 25.0 * dt;
+                    b.mesh.position.addScaledVector(b.velocity, dt);
+                    b.mesh.rotation.x += b.rotVelocity.x * dt;
+                    b.mesh.rotation.y += b.rotVelocity.y * dt;
+                    b.mesh.rotation.z += b.rotVelocity.z * dt;
+
+                    if (b.mesh.position.y <= 1.5) {
+                        b.mesh.position.y = 1.5;
+                        b.velocity.set(0, 0, 0);
+                        b.rotVelocity.set(0, 0, 0);
+                    }
+                }
+            });
+
+            for (let i = activeProjectiles.length - 1; i >= 0; i--) {
+                const p = activeProjectiles[i];
+                p.mesh.position.addScaledVector(p.velocity, dt);
+                p.life -= dt;
+
+                let hitBlock = false;
+                destructibleBricks.forEach(b => {
+                    b.bounds.setFromObject(b.mesh);
+                    if (b.bounds.containsPoint(p.mesh.position)) {
+                        hitBlock = true;
+                    }
+                });
+
+                npcBots.forEach(bot => {
+                    if (bot.alive && bot.pos.distanceTo(p.mesh.position) < 2.2) {
+                        hitBlock = true;
+                        damageNPC(bot, p.type === 'rocket' ? 100 : 35);
+                    }
+                });
+
+                if (p.mesh.position.y <= 0 || hitBlock || p.life <= 0) {
+                    if (p.type === 'rocket' && (p.mesh.position.y <= 0 || hitBlock)) {
+                        triggerExplosion(p.mesh.position, 14);
+                    }
+                    scene.remove(p.mesh);
+                    activeProjectiles.splice(i, 1);
+                }
+            }
+        }
+
+        function updateSpeechBubbles() {
+            for (let i = activeSpeechBubbles.length - 1; i >= 0; i--) {
+                const bubble = activeSpeechBubbles[i];
+                bubble.timer -= 0.016;
+
+                if (bubble.timer <= 0) {
+                    if (bubble.element.parentNode) bubble.element.parentNode.removeChild(bubble.element);
+                    activeSpeechBubbles.splice(i, 1);
+                    continue;
+                }
+
+                const headWorldPos = playerPos.clone().add(new THREE.Vector3(0, 6.0, 0));
+                const screenPos = headWorldPos.clone().project(camera);
+
+                const hw = renderer.domElement.clientWidth / 2;
+                const hh = renderer.domElement.clientHeight / 2;
+
+                const x = (screenPos.x * hw) + hw;
+                const y = -(screenPos.y * hh) + hh;
+
+                if (screenPos.z < 1) {
+                    bubble.element.style.display = 'block';
+                    bubble.element.style.left = `${x}px`;
+                    bubble.element.style.top = `${y}px`;
+                } else {
+                    bubble.element.style.display = 'none';
+                }
+            }
+        }
+
+        function handleChatSubmit(e) {
+            if (e) e.preventDefault();
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatLog = document.getElementById('chatLog');
+            const msgDiv = document.createElement('div');
+            msgDiv.innerHTML = `<span class="text-yellow-300 font-bold">${userState.username}:</span> ${escapeHtml(msg)}`;
+            chatLog.appendChild(msgDiv);
+            chatLog.scrollTop = chatLog.scrollHeight;
+
+            createSpeechBubble(msg);
+
+            input.value = '';
+            input.blur();
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function createSpeechBubble(text) {
+            const container = document.getElementById('speechBubblesContainer');
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            bubble.innerText = text;
+            container.appendChild(bubble);
+
+            activeSpeechBubbles.push({
+                element: bubble,
+                timer: 4.0
+            });
+        }
+
+        function switchTab(tabName) {
+            const tabs = ['play', 'games', 'avatar', 'catalog'];
+            tabs.forEach(t => {
+                const view = document.getElementById(`view-${t}`);
+                const tabBtn = document.getElementById(`tab-${t}`);
+                if (t === tabName) {
+                    view.classList.remove('hidden');
+                    tabBtn.classList.add('active');
+                } else {
+                    view.classList.add('hidden');
+                    tabBtn.classList.remove('active');
+                }
+            });
+
+            if (tabName === 'avatar') {
+                initAvatarPreview();
+            }
+        }
+
+        function initAvatarPreview() {
+            const container = document.getElementById('avatarPreviewContainer');
+            const canvas = document.getElementById('avatarCanvas');
+            if (!container || !canvas) return;
+
+            if (!avatarPreviewRenderer) {
+                avatarPreviewScene = new THREE.Scene();
+                avatarPreviewScene.background = new THREE.Color(0xECECEC);
+
+                avatarPreviewCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+                avatarPreviewCamera.position.set(0, 3.5, 9);
+                avatarPreviewCamera.lookAt(0, 3.0, 0);
+
+                avatarPreviewRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+                avatarPreviewRenderer.setSize(container.clientWidth, container.clientHeight);
+
+                const light = new THREE.DirectionalLight(0xffffff, 1.0);
+                light.position.set(5, 10, 7);
+                avatarPreviewScene.add(light);
+                avatarPreviewScene.add(new THREE.AmbientLight(0xffffff, 0.6));
+            }
+
+            updateAvatarPreviewMesh();
+        }
+
+        function updateAvatarPreviewMesh() {
+            if (!avatarPreviewScene) return;
+
+            if (previewAvatarGroup) avatarPreviewScene.remove(previewAvatarGroup);
+
+            previewAvatarGroup = new THREE.Group();
+            const c = userState.avatar.colors;
+
+            const matHead = new THREE.MeshLambertMaterial({ color: c.head });
+            const matTorso = new THREE.MeshLambertMaterial({ color: c.torso });
+            const matLArm = new THREE.MeshLambertMaterial({ color: c.leftArm });
+            const matRArm = new THREE.MeshLambertMaterial({ color: c.rightArm });
+            const matLLeg = new THREE.MeshLambertMaterial({ color: c.leftLeg });
+            const matRLeg = new THREE.MeshLambertMaterial({ color: c.rightLeg });
+
+            const faceMat = new THREE.MeshLambertMaterial({
+                map: createFaceTexture(userState.avatar.face),
+                transparent: true
+            });
+
+            const headGeo = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+            const headMaterials = [matHead, matHead, matHead, matHead, faceMat, matHead];
+            const headMesh = new THREE.Mesh(headGeo, headMaterials);
+            headMesh.position.y = 4.6;
+
+            const headStudGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.2, 16);
+            const headStud = new THREE.Mesh(headStudGeo, matHead);
+            headStud.position.y = 0.7;
+            headMesh.add(headStud);
+
+            const torsoMesh = new THREE.Mesh(new THREE.BoxGeometry(2.0, 2.0, 1.0), matTorso);
+            torsoMesh.position.y = 3.0;
+
+            const armGeo = new THREE.BoxGeometry(1.0, 2.0, 1.0);
+            armGeo.translate(0, -1.0, 0);
+
+            const leftArm = new THREE.Mesh(armGeo, matLArm);
+            leftArm.position.set(-1.5, 4.0, 0);
+
+            const rightArm = new THREE.Mesh(armGeo, matRArm);
+            rightArm.position.set(1.5, 4.0, 0);
+
+            const legGeo = new THREE.BoxGeometry(0.95, 2.0, 1.0);
+            legGeo.translate(0, -1.0, 0);
+
+            const leftLeg = new THREE.Mesh(legGeo, matLLeg);
+            leftLeg.position.set(-0.5, 2.0, 0);
+
+            const rightLeg = new THREE.Mesh(legGeo, matRLeg);
+            rightLeg.position.set(0.5, 2.0, 0);
+
+            applyHatToHead(headMesh, userState.avatar.hat);
+
+            previewAvatarGroup.add(headMesh, torsoMesh, leftArm, rightArm, leftLeg, rightLeg);
+            avatarPreviewScene.add(previewAvatarGroup);
+
+            avatarPreviewRenderer.render(avatarPreviewScene, avatarPreviewCamera);
+        }
+
+        function renderColorPalette() {
+            const grid = document.getElementById('colorPaletteGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            ROBLOX_PALETTE.forEach(color => {
+                const btn = document.createElement('button');
+                btn.className = 'w-7 h-7 rounded border-2 border-slate-600 hover:scale-110 transition-transform shadow';
+                btn.style.backgroundColor = color.hex;
+                btn.title = color.name;
+                btn.onclick = () => setBodyPartColor(color.hex);
+                grid.appendChild(btn);
+            });
+        }
+
+        function selectBodyPartEdit(part) {
+            userState.editingPart = part;
+            ['head', 'torso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'].forEach(p => {
+                const btn = document.getElementById(`part-${p}`);
+                if (btn) {
+                    if (p === part) {
+                        btn.className = 'px-2 py-1 bg-yellow-400 text-black font-bold rounded border border-yellow-600';
+                    } else {
+                        btn.className = 'px-2 py-1 bg-slate-200 text-black font-bold rounded border border-slate-400';
+                    }
+                }
+            });
+        }
+
+        function setBodyPartColor(hexColor) {
+            userState.avatar.colors[userState.editingPart] = hexColor;
+            buildPlayer3DCharacter();
+            updateAvatarPreviewMesh();
+        }
+
+        function setAvatarFace(faceName) {
+            userState.avatar.face = faceName;
+            buildPlayer3DCharacter();
+            updateAvatarPreviewMesh();
+        }
+
+        function setAvatarHat(hatName) {
+            userState.avatar.hat = hatName;
+            buildPlayer3DCharacter();
+            updateAvatarPreviewMesh();
+        }
+
+        const CATALOG_ITEMS = [
+            { id: 1, name: 'Classic Red Visor', price: '50 R$', icon: '🥽', type: 'hat', val: 'visor' },
+            { id: 2, name: 'Domino Crown', price: '1,000 R$', icon: '👑', type: 'hat', val: 'domino' },
+            { id: 3, name: 'Top Hat', price: '100 Tx', icon: '🎩', type: 'hat', val: 'tophat' },
+            { id: 4, name: 'Big Head Mode', price: '250 R$', icon: '🗣️', type: 'hat', val: 'bighead' },
+            { id: 5, name: 'Epic Face', price: '50 Tx', icon: '😎', type: 'face', val: 'epic' },
+            { id: 6, name: 'Man Face', price: '10 Tx', icon: '😏', type: 'face', val: 'chill' },
+            { id: 7, name: 'OOF Shock Face', price: '20 Tx', icon: '😮', type: 'face', val: 'oof' },
+            { id: 8, name: 'Classic Smile', price: 'Free', icon: '🙂', type: 'face', val: 'smile' }
+        ];
+
+        function renderCatalog() {
+            const grid = document.getElementById('catalogGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            CATALOG_ITEMS.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'bg-white border-2 border-slate-400 rounded p-3 flex flex-col items-center justify-between shadow hover:shadow-md transition';
+                div.innerHTML = `
+                    <div class="text-4xl my-2">${item.icon}</div>
+                    <div class="font-bold text-xs text-center text-slate-800">${item.name}</div>
+                    <div class="text-xs font-bold text-green-600 my-1">${item.price}</div>
+                    <button onclick="buyCatalogItem('${item.type}', '${item.val}')" class="retro-btn-green w-full py-1 rounded text-xs mt-1">Equip / Buy</button>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function buyCatalogItem(type, val) {
+            if (type === 'hat') {
+                setAvatarHat(val);
+            } else if (type === 'face') {
+                setAvatarFace(val);
+            }
+            switchTab('avatar');
+        }
+
+        function launchPlace(mapType) {
+            document.getElementById('mapSelect').value = mapType;
+            changeMap(mapType);
+            switchTab('play');
+        }
+
+        function changeMap(mapType) {
+            buildMap(mapType);
+        }
+
+        function toggleFullScreen() {
+            const elem = document.getElementById('canvasContainer');
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen().catch(err => console.log(err));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvasContainer');
+            if (container && camera && renderer) {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            }
+        }
+
+        window.onload = function() {
+            init3DGameEngine();
+            renderColorPalette();
+            renderCatalog();
+        };
+    </script>
+</body>
+</html>
